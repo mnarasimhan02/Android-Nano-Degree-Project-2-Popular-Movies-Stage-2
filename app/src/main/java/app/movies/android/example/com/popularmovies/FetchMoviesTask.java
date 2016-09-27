@@ -84,13 +84,13 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
 
         try {
 
-            final String BASE_URL = "http://api.themoviedb.org/3/discover/movie?";
+            final String BASE_URL = "http://api.themoviedb.org/3/movie?";
             final String SORT_BY = "sort_by";
             final String KEY = "api_key";
             String sortBy = params[0];
 
             Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                    .appendQueryParameter(SORT_BY, sortBy)
+                    .appendPath(sortBy)
                     .appendQueryParameter(KEY, API_KEY)
                     .build();
 
