@@ -1,7 +1,4 @@
 package app.movies.android.example.com.popularmovies;
-/**
- * Created by Mahesh on 9/22/2016.
- */
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -27,6 +24,10 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Created by Mahesh on 9/22/2016.
+ */
+
 /*
 *
 * Async class for fetching the
@@ -42,7 +43,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
 
     public AsyncResponse delegate;
     private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
-    private final String API_KEY = "YOUR_API_KEY";
+    private final String API_KEY = "f2b21e307d9711ccec6c3e97b5ae244f";
     private final String MOVIE_POSTER_BASE = "http://image.tmdb.org/t/p/";
     private final String MOVIE_POSTER_SIZE = "w185";
 
@@ -84,7 +85,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
 
         try {
 
-            final String BASE_URL = "http://api.themoviedb.org/3/movie?";
+            final String BASE_URL = "http://api.themoviedb.org/3/movie/";
             final String SORT_BY = "sort_by";
             final String KEY = "api_key";
             String sortBy = params[0];

@@ -1,4 +1,5 @@
 package app.movies.android.example.com.popularmovies;
+
 import android.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,8 +38,9 @@ public class MovieListFragment extends Fragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        sortOrder = prefs.getString(getString(R.string.display_preferences_sort_order_key),
+       prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+      //  prefs = Context.get(PREFERENCE_NAME,Context.MODE_PRIVATE);
+        sortOrder = prefs.getString(getString(R.string.display_preferences_sort_order_keys),
                 getString(R.string.display_preferences_sort_default_value));
 
         if(savedInstanceState != null){
@@ -88,7 +91,7 @@ public class MovieListFragment extends Fragment{
         super.onStart();
 
         // get sort order to see if it has recently changed
-        String prefSortOrder = prefs.getString(getString(R.string.display_preferences_sort_order_key),
+        String prefSortOrder = prefs.getString(getString(R.string.display_preferences_sort_order_keys),
                 getString(R.string.display_preferences_sort_default_value));
 
         if(movies.size() > 0 && prefSortOrder.equals(sortOrder)) {

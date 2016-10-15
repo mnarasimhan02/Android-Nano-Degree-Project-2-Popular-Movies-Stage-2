@@ -7,7 +7,7 @@
         <ListPreference
             android:title="@string/display_preferences_sort_order_title"
             android:summary="@string/display_preferences_sort_order_desc"
-            android:key="@string/display_preferences_sort_order_key"
+            android:key="@string/display_preferences_sort_order_keys"
             android:defaultValue="@string/display_preferences_sort_default_value"
             android:entries="@array/sortArray"
             android:entryValues="@array/sortArrayValues" />
