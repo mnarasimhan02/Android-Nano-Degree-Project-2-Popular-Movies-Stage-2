@@ -3,6 +3,7 @@ package app.movies.android.example.com.popularmovies;
 /**
  * Created by Mahesh on 9/22/2016.
  */
+
 import java.util.List;
 
 /*
@@ -14,6 +15,6 @@ import java.util.List;
 
 public interface AsyncResponse {
 
-    void onTaskCompleted( List<Movie> results );
+    void onTaskCompleted(List<Movie> results);
 
 }

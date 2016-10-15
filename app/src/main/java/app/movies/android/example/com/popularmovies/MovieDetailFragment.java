@@ -35,15 +35,16 @@ public class MovieDetailFragment extends Fragment {
         Intent intent = getActivity().getIntent();
         if (intent != null && intent.hasExtra("movies_details")) {
 
-            movie = (Movie)intent.getParcelableExtra("movies_details");
+            movie = (Movie) intent.getParcelableExtra("movies_details");
             DisplayInfo(rootView);
 
         }
 
         return rootView;
     }
-/* Display information, Calculating average rating and using Picasso for faster loading of images*/
-    private void DisplayInfo(View v){
+
+    /* Display information, Calculating average rating and using Picasso for faster loading of images*/
+    private void DisplayInfo(View v) {
         TextView title = (TextView) v.findViewById(R.id.movie_title_view);
         ImageView poster = (ImageView) v.findViewById(R.id.poster_image_view);
         TextView releaseDate = (TextView) v.findViewById(R.id.release_date);

@@ -1,4 +1,5 @@
 package app.movies.android.example.com.popularmovies;
+
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,8 +18,8 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity {
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
-    private FragmentManager fragmentManager = getFragmentManager();
     MovieListFragment fragment;
+    private FragmentManager fragmentManager = getFragmentManager();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
             fragmentManager.beginTransaction()
                     .add(R.id.container, fragment)
                     .commit();
-        }else{
+        } else {
             fragment = (MovieListFragment) fragmentManager.getFragment(
                     savedInstanceState, "fragmentContent");
         }

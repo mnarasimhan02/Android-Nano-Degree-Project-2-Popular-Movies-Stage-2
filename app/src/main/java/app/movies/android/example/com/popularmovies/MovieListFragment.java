@@ -21,7 +21,7 @@ import java.util.List;
 *
 * */
 
-public class MovieListFragment extends Fragment{
+public class MovieListFragment extends Fragment {
 
     private final String LOG_TAG = MovieListFragment.class.getSimpleName();
     private final String STORED_MOVIES = "stored_movies";
@@ -38,12 +38,12 @@ public class MovieListFragment extends Fragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-       prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-      //  prefs = Context.get(PREFERENCE_NAME,Context.MODE_PRIVATE);
+        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        //  prefs = Context.get(PREFERENCE_NAME,Context.MODE_PRIVATE);
         sortOrder = prefs.getString(getString(R.string.display_preferences_sort_order_keys),
                 getString(R.string.display_preferences_sort_default_value));
 
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
             ArrayList<Movie> storedMovies = new ArrayList<Movie>();
             storedMovies = savedInstanceState.<Movie>getParcelableArrayList(STORED_MOVIES);
             movies.clear();
@@ -94,9 +94,9 @@ public class MovieListFragment extends Fragment{
         String prefSortOrder = prefs.getString(getString(R.string.display_preferences_sort_order_keys),
                 getString(R.string.display_preferences_sort_default_value));
 
-        if(movies.size() > 0 && prefSortOrder.equals(sortOrder)) {
+        if (movies.size() > 0 && prefSortOrder.equals(sortOrder)) {
             updatePosterAdapter();
-        }else{
+        } else {
             sortOrder = prefSortOrder;
             getMovies();
         }
@@ -125,7 +125,7 @@ public class MovieListFragment extends Fragment{
     // updates the ArrayAdapter of poster images
     private void updatePosterAdapter() {
         mMoviePosterAdapter.clear();
-        for(Movie movie : movies) {
+        for (Movie movie : movies) {
             mMoviePosterAdapter.add(movie.getPoster());
         }
     }
