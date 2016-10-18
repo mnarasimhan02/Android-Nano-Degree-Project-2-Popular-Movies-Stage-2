@@ -1,8 +1,8 @@
-package app.movies.android.example.com.popularmovies;
+package app.movies.android.example.com.popularmovies.AsyncTasks;
 
+import android.content.ContentResolver;
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -21,60 +21,46 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
 
-/**
- * Created by Mahesh on 9/22/2016.
- */
+import app.movies.android.example.com.popularmovies.Config.Config;
+import app.movies.android.example.com.popularmovies.DataObjects.Movie;
+import app.movies.android.example.com.popularmovies.adapters.ImageAdapter;
+import app.movies.android.example.com.popularmovies.data.PopularMovieContract;
 
 /*
 *
 * Async class for fetching the
 * movie information from the database
 *
-* Separated the async class from the activity,
-* Returns data through callback based on information found at:
-* http://stackoverflow.com/questions/9963691/android-asynctask-sending-callbacks-to-ui
+* Also handles logic if it will load movies in save instance state
 *
 * */
 
-public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
+public class FetchMoviesTask extends AsyncTask<String, Void, ArrayList<Movie>> {
 
-    public AsyncResponse delegate;
     private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
-    private final String API_KEY = "YOUR_API_KEY";
     private final String MOVIE_POSTER_BASE = "http://image.tmdb.org/t/p/";
     private final String MOVIE_POSTER_SIZE = "w185";
+    private final Context mContext;
+    private ImageAdapter mMoviePosterAdapter;
+    private ArrayList<Movie> movies;
+    private String sortBy;
 
-    public FetchMoviesTask(AsyncResponse delegate){
-        this.delegate = delegate;
+    public FetchMoviesTask(Context context, ArrayList<Movie> movies,
+                           ImageAdapter mMoviePosterAdapter, String sortBy){
+        this.mContext = context;
+        this.movies = movies;
+        this.mMoviePosterAdapter = mMoviePosterAdapter;
+        this.sortBy = sortBy;
     }
-
-    /*checking availability of valid connection*/
-
-    public boolean isNetworkAvailable(Context contextValue) {
-        Context context = contextValue;
-        ConnectivityManager connectivity = (ConnectivityManager)
-                context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivity != null) {
-            NetworkInfo[] info = connectivity.getAllNetworkInfo();
-            if (info != null) {
-                for (int i = 0; i < info.length; i++) {
-                    if (info[i].getState() == NetworkInfo.State.CONNECTED) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
     @Override
-    protected List<Movie> doInBackground(String... params) {
+    protected ArrayList<Movie> doInBackground(String... params) {
 
-        if (params.length == 0) {
-            return null;
+        // get favorites from the database
+        if(sortBy.equals("favorites")){
+            getFavorites();
+            return movies;
         }
 
         // These two need to be declared outside the try/catch
@@ -92,7 +78,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
 
             Uri builtUri = Uri.parse(BASE_URL).buildUpon()
                     .appendPath(sortBy)
-                    .appendQueryParameter(KEY, API_KEY)
+                    .appendQueryParameter(KEY, Config.API_KEY)
                     .build();
 
             URL url = new URL(builtUri.toString());
@@ -143,17 +129,11 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
         return null;
     }
 
-    @Override
-    protected void onPostExecute(List<Movie> results) {
-        if (results != null) {
-            // return the List of movies back to the caller.
-            delegate.onTaskCompleted(results);
-        }
-    }
-
     private String getYear(String date){
+
         final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         final Calendar cal = Calendar.getInstance();
+
         try {
             cal.setTime(df.parse(date));
         } catch (ParseException e) {
@@ -161,12 +141,14 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
         }
 
         return Integer.toString(cal.get(Calendar.YEAR));
+
     }
 
-    private List<Movie> extractData(String moviesJsonStr) throws JSONException {
+    private ArrayList<Movie> extractData(String moviesJsonStr) throws JSONException {
 
         // Items to extract
         final String ARRAY_OF_MOVIES = "results";
+        final String ORIGINAL_ID = "id";
         final String ORIGINAL_TITLE = "original_title";
         final String POSTER_PATH = "poster_path";
         final String OVERVIEW = "overview";
@@ -176,23 +158,87 @@ public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
         JSONObject moviesJson = new JSONObject(moviesJsonStr);
         JSONArray moviesArray = moviesJson.getJSONArray(ARRAY_OF_MOVIES);
         int moviesLength =  moviesArray.length();
-        List<Movie> movies = new ArrayList<Movie>();
+
+        // clear the list before adding more
+        movies.clear();
 
         for(int i = 0; i < moviesLength; ++i) {
 
             // for each movie in the JSON object create a new
             // movie object with all the required data
             JSONObject movie = moviesArray.getJSONObject(i);
+            int id = movie.getInt(ORIGINAL_ID);
             String title = movie.getString(ORIGINAL_TITLE);
             String poster = MOVIE_POSTER_BASE + MOVIE_POSTER_SIZE + movie.getString(POSTER_PATH);
             String overview = movie.getString(OVERVIEW);
             String voteAverage = movie.getString(VOTE_AVERAGE);
             String releaseDate = getYear(movie.getString(RELEASE_DATE));
-            movies.add(new Movie(title, poster, overview, voteAverage, releaseDate));
+            Movie newMovie = new Movie(id, title, poster, overview, voteAverage, releaseDate);
+
+            // fetch reviews which will be stored as a JSON string
+            // and add it to the new movie in new asyncTask
+            app.movies.android.example.com.popularmovies.AsyncTasks.FetchMoviesComponents fetchReviews = new app.movies.android.example.com.popularmovies.AsyncTasks.FetchMoviesComponents(newMovie,
+                    "reviews");
+            fetchReviews.execute();
+
+            // fetch previews which will be stored as a JSON string
+            // and add it to the new movie in new asyncTask
+            app.movies.android.example.com.popularmovies.AsyncTasks.FetchMoviesComponents fetchPreviews = new app.movies.android.example.com.popularmovies.AsyncTasks.FetchMoviesComponents(newMovie,
+                    "videos");
+            fetchPreviews.execute();
+
+            movies.add(newMovie);
 
         }
 
         return movies;
+
+    }
+
+    private void getFavorites(){
+
+        Uri uri = PopularMovieContract.MovieEntry.CONTENT_URI;
+        ContentResolver resolver = mContext.getContentResolver();
+        Cursor cursor = null;
+
+        try {
+
+            cursor = resolver.query(uri, null, null, null, null);
+
+            // clear movies
+            movies.clear();
+
+            if (cursor.moveToFirst()){
+                do {
+                    Movie movie = new Movie(cursor.getInt(1), cursor.getString(3),
+                            cursor.getString(4), cursor.getString(5), cursor.getString(6),
+                            cursor.getString(7));
+
+                    movie.setReviews(cursor.getString(8));
+                    movie.setMoviePreviews(cursor.getString(9));
+                    movies.add(movie);
+                } while (cursor.moveToNext());
+            }
+
+        } finally {
+
+            if(cursor != null)
+                cursor.close();
+
+        }
+
+    }
+
+    @Override
+    protected void onPostExecute(ArrayList<Movie> results) {
+        if (results != null && mMoviePosterAdapter != null) {
+
+            mMoviePosterAdapter.clear();
+            for(Movie movie : results) {
+                mMoviePosterAdapter.add(movie.getPoster());
+            }
+
+        }
 
     }
 }

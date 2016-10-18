@@ -1,19 +1,20 @@
 package app.movies.android.example.com.popularmovies;
 
 import android.app.Fragment;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
 import java.util.ArrayList;
-import java.util.List;
+
+import app.movies.android.example.com.popularmovies.AsyncTasks.FetchMoviesTask;
+import app.movies.android.example.com.popularmovies.DataObjects.Movie;
+import app.movies.android.example.com.popularmovies.adapters.ImageAdapter;
 
 /*
 *
@@ -28,39 +29,46 @@ public class MovieListFragment extends Fragment {
     private SharedPreferences prefs;
     private ImageAdapter mMoviePosterAdapter;
     String sortOrder;
-    List<Movie> movies = new ArrayList<Movie>();
+    private ArrayList<Movie> movies = new ArrayList<Movie>();
+
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callback {
+        public void loadItem(Movie movie);
+    }
 
     public MovieListFragment() {
         setHasOptionsMenu(true);
     }
 
+    /**
+     * on create get back the saved movie list
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        //  prefs = Context.get(PREFERENCE_NAME,Context.MODE_PRIVATE);
         sortOrder = prefs.getString(getString(R.string.display_preferences_sort_order_keys),
                 getString(R.string.display_preferences_sort_default_value));
 
-        if (savedInstanceState != null) {
-            ArrayList<Movie> storedMovies = new ArrayList<Movie>();
-            storedMovies = savedInstanceState.<Movie>getParcelableArrayList(STORED_MOVIES);
-            movies.clear();
-            movies.addAll(storedMovies);
+        if(savedInstanceState != null){
+            if(savedInstanceState.<Movie>getParcelableArrayList(STORED_MOVIES) != null) {
+                movies.clear();
+                movies.addAll(savedInstanceState.<Movie>getParcelableArrayList(STORED_MOVIES));
+            }
         }
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        setHasOptionsMenu(true);
         mMoviePosterAdapter = new ImageAdapter(
                 getActivity(),
                 R.layout.list_item_poster,
@@ -75,10 +83,12 @@ public class MovieListFragment extends Fragment {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+
                 Movie details = movies.get(position);
-                Intent intent = new Intent(getActivity(), MovieDetailActivity.class)
-                        .putExtra("movies_details", details);
-                startActivity(intent);
+
+                ((Callback) getActivity())
+                        .loadItem(details);
+
             }
 
         });
@@ -86,48 +96,61 @@ public class MovieListFragment extends Fragment {
         return rootView;
     }
 
+
+    /*
+    * call getMovies to kick of async task. Asynk task now handles if it should call
+    * the API or not
+    * */
     @Override
     public void onStart() {
         super.onStart();
 
-        // get sort order to see if it has recently changed
-        String prefSortOrder = prefs.getString(getString(R.string.display_preferences_sort_order_keys),
+        // get preferences to check sort order
+        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String checkSortOrder = prefs.getString(getString(R.string.display_preferences_sort_order_keys),
                 getString(R.string.display_preferences_sort_default_value));
 
-        if (movies.size() > 0 && prefSortOrder.equals(sortOrder)) {
-            updatePosterAdapter();
-        } else {
-            sortOrder = prefSortOrder;
+
+        boolean sortOrderChange = !checkSortOrder.equals(sortOrder);
+        sortOrder = checkSortOrder;
+
+        // if no movies or the sort order has changed fetch new movies
+        // if sort order is favorites it grabs favorites from DB
+        // to ensure it is always up to date
+        if(movies.size() == 0 || sortOrderChange || sortOrder.equals("favorites")){
             getMovies();
+        }else{
+            // else load what's already in memory
+            mMoviePosterAdapter.clear();
+            for(Movie movie : movies) {
+                mMoviePosterAdapter.add(movie.getPoster());
+            }
         }
+
     }
 
+
+    /*
+    * On save instance state. Creates a parcelable array of all current received from the API
+    * */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        ArrayList<Movie> storedMovies = new ArrayList<Movie>();
-        storedMovies.addAll(movies);
-        outState.putParcelableArrayList(STORED_MOVIES, storedMovies);
+        outState.putParcelableArrayList(STORED_MOVIES, movies);
     }
 
+
+    /*
+    * kicks off async task to get movies for the main movie list UI
+    * */
     private void getMovies() {
-        FetchMoviesTask fetchMoviesTask = new FetchMoviesTask(new AsyncResponse() {
-            @Override
-            public void onTaskCompleted(List<Movie> results) {
-                movies.clear();
-                movies.addAll(results);
-                updatePosterAdapter();
-            }
-        });
-        fetchMoviesTask.execute(sortOrder);
-    }
 
-    // updates the ArrayAdapter of poster images
-    private void updatePosterAdapter() {
-        mMoviePosterAdapter.clear();
-        for (Movie movie : movies) {
-            mMoviePosterAdapter.add(movie.getPoster());
-        }
+        // fetch the movies from the API, or it will get favorites from the DB
+        FetchMoviesTask fetchMoviesTask = new FetchMoviesTask(getActivity(),
+                movies, mMoviePosterAdapter, sortOrder);
+
+        fetchMoviesTask.execute(sortOrder);
+
     }
 
 }

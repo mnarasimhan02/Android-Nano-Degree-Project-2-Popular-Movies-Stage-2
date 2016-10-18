@@ -29,7 +29,7 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             fragmentManager.beginTransaction()
-                    .add(R.id.container, new MovieDetailFragment())
+                    .add(R.id.movie_detail_container, new MovieDetailFragment())
                     .commit();
         }
         getSupportActionBar().setElevation(0f);
@@ -37,19 +37,20 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_movie_detail, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
+
 }

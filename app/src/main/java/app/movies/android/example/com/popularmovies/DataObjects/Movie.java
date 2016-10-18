@@ -1,9 +1,9 @@
-package app.movies.android.example.com.popularmovies;
+package app.movies.android.example.com.popularmovies.DataObjects;
 
-/**
- * Created by Mahesh on 9/23/2016.
- */
 /*
+*
+* simple object to store all the information
+* for a movie being used in the UI
 *
 * Takes a string for the movie title, poster, overview, voteAverage
 * and releaseDate
@@ -16,19 +16,27 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Movie implements Parcelable {
+    private int movieId;
     private String title;
     private String poster;
     private String overview;
     private String voteAverage;
     private String releaseDate;
+    private String movieReviews;
+    private String moviePreviews = "";
 
-    public Movie(String title, String poster, String overview,
+    public Movie(int movieId, String title, String poster, String overview,
                  String voteAverage, String releaseDate){
+        this.movieId = movieId;
         this.title = title;
         this.poster = poster;
         this.overview = overview;
         this.voteAverage = voteAverage;
         this.releaseDate = releaseDate;
+    }
+
+    public int getMovieId() {
+        return movieId;
     }
 
     public String getTitle() {
@@ -51,13 +59,32 @@ public class Movie implements Parcelable {
         return releaseDate;
     }
 
+    public String getReviews() {
+        return movieReviews;
+    }
+
+    public void setReviews(String reviews) {
+        movieReviews = reviews;
+    }
+
+    public String getMoviePreviews() {
+        return moviePreviews;
+    }
+
+    public void setMoviePreviews(String previews) {
+        moviePreviews = previews;
+    }
+
     @Override
     public void writeToParcel(Parcel out, int flags) {
+        out.writeInt(movieId);
         out.writeString(title);
         out.writeString(poster);
         out.writeString(overview);
         out.writeString(voteAverage);
         out.writeString(releaseDate);
+        out.writeString(movieReviews);
+        out.writeString(moviePreviews);
     }
 
     @Override
@@ -66,14 +93,17 @@ public class Movie implements Parcelable {
     }
 
     private Movie(Parcel in) {
+        movieId = in.readInt();
         title = in.readString();
         poster = in.readString();
         overview = in.readString();
         voteAverage = in.readString();
         releaseDate = in.readString();
+        movieReviews = in.readString();
+        moviePreviews = in.readString();
     }
 
-    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
+    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
         public Movie createFromParcel(Parcel in) {
             return new Movie(in);
         }

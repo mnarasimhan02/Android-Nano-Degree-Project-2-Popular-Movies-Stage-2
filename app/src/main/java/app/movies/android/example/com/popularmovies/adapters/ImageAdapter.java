@@ -1,22 +1,20 @@
-package app.movies.android.example.com.popularmovies;
+package app.movies.android.example.com.popularmovies.adapters;
 
-/**
- * Created by Mahesh on 9/23/2016.
- */
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
 /*
 *
-* Custom ImageAdapter to
-* create the Grid of movie posters
+* Custom ImageAdapter used to
+* used to create the Grid of movie posters
 *
 * */
 

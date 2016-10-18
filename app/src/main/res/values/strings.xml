@@ -14,6 +14,7 @@
     * Menu item names
     *********************
     -->
+    <string name="action_share_video">Share Trailer</string>
     <string name="action_settings">Settings</string>
 
     <!-- categories -->
@@ -26,8 +27,16 @@
     <string name="display_preferences_sort_default_value">popular</string>
     <string name="sort_array_item_1">Most Popular</string>
     <string name="sort_array_item_2">Highest Rated</string>
+    <string name="sort_array_item_3">Favorites</string>
     <string name="sort_array_item_1_value">popular</string>
     <string name="sort_array_item_2_value">top_rated</string>
+    <string name="sort_array_item_3_value">favorites</string>
     <string name="title_activity_movie_detail">MovieDetailActivity</string>
+    <!--
+    *********************
+    * detail activity strings
+    *********************
+    -->
+    <string name="add_to_favs">Add to Favorites:</string>
 
 </resources>

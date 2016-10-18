@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import app.movies.android.example.com.popularmovies.DataObjects.Movie;
 
 /*
 *
@@ -15,26 +16,31 @@ import android.view.MenuItem;
 *
 * */
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MovieListFragment.Callback{
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
-    MovieListFragment fragment;
+    private static final String DETAILFRAGMENT_TAG = "DFTAG";
     private FragmentManager fragmentManager = getFragmentManager();
+    private boolean mTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (savedInstanceState == null) {
-            fragment = new MovieListFragment();
-            fragmentManager.beginTransaction()
-                    .add(R.id.container, fragment)
-                    .commit();
+        if (findViewById(R.id.movie_detail_container) != null) {
+
+            mTwoPane = true;
+
+            if (savedInstanceState == null) {
+                fragmentManager.beginTransaction()
+                        .add(R.id.movie_detail_container, new MovieDetailFragment(), DETAILFRAGMENT_TAG)
+                        .commit();
+            }
         } else {
-            fragment = (MovieListFragment) fragmentManager.getFragment(
-                    savedInstanceState, "fragmentContent");
+            mTwoPane = false;
         }
+
     }
 
     @Override
@@ -56,9 +62,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-        fragmentManager.putFragment(savedInstanceState, "fragmentContent", fragment);
-    }
+    public void loadItem(Movie movie) {
+        if (mTwoPane) {
+            Bundle args = new Bundle();
+            args.putParcelable("movies_details", movie);
 
+            MovieDetailFragment fragment = new MovieDetailFragment();
+            fragment.setArguments(args);
+
+            fragmentManager.beginTransaction()
+                    .replace(R.id.movie_detail_container, fragment, DETAILFRAGMENT_TAG)
+                    .commit();
+        } else {
+            Intent intent = new Intent(this, MovieDetailActivity.class)
+                    .putExtra("movies_details", movie);
+            startActivity(intent);
+        }
+    }
 }
