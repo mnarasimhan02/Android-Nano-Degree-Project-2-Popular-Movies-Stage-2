@@ -7,3 +7,34 @@ Important
 https://www.themoviedb.org/ requires you to register for an API key. Once you have your key you will need to update it in package: app.movies.android.example.com.popularmovies.Config.Config.java
 
 Replace YOUR_API_KEY with the key you recived from https://www.themoviedb.org/ public static final String API_KEY = "YOUR_API_KEY";
+
+
+# Popular Movies
+
+Udacity - Android Developer Nanodegree - Projects 1 & 2: Popular Movies
+
+![Screenshot_1489164611.png]({{site.baseurl}}/Screenshot_1489164611.png)
+
+## Libraries
+
+* [Butter Knife](https://github.com/JakeWharton/butterknife)
+* [Google GSON](https://github.com/google/gson)
+* [MaterialLoadingProgressBar](https://github.com/lsjwzh/MaterialLoadingProgressBar)
+* [Volley](http://developer.android.com/training/volley/index.html)
+
+
+## License
+
+    Copyright 2017 Mahesh Narasimhan 
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
