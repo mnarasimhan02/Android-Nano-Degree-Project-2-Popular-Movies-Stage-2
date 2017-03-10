@@ -13,7 +13,7 @@ Replace YOUR_API_KEY with the key you recived from https://www.themoviedb.org/ p
 
 Udacity - Android Developer Nanodegree - Projects 1 & 2: Popular Movies
 
-![Screenshot]({{site.baseurl}}/Screenshot_1489164611.png)
+[![Screenshot.png](https://s13.postimg.org/8bsjaa7on/Screenshot.png)](https://postimg.org/image/sj5z2l55v/)
 
 ## Libraries
 
